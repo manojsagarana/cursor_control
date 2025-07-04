@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Star Wars</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: radial-gradient(ellipse at center, #1b0000 0%, #000000 100%);
+      font-family: 'Segoe UI', sans-serif;
+      color: #ffdddd;
+      overflow-x: hidden;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin: 40px 0;
+      color: #ff4e4e;
+      text-shadow: 0 0 20px #ff1a1a;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .toggle-button {
+      padding: 10px 20px;
+      margin: 0 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background-color: #3b0000;
+      color: white;
+      box-shadow: 0 0 15px #ff1a1a;
+    }
+    .toggle-button:hover {
+      background-color: #ff1a1a;
+    }
+    .video-container {
+      display: flex;
+      justify-content: center;
+      perspective: 1500px;
+      margin-bottom: 50px;
+    }
+    .video-feed {
+      width: 720px;
+      height: 480px;
+      border-radius: 15px;
+      border: 6px solid #ff1a1a;
+      box-shadow: 0 0 30px #ff1a1a;
+    }
+    .easter-egg-row {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 30px;
+      flex-wrap: nowrap;
+    }
+    .egg-button {
+      width: 110px;
+      height: 150px;
+      border: none;
+      border-radius: 50% 50% 45% 45% / 55% 55% 45% 45%;
+      background: linear-gradient(145deg, #2c0000, #440000);
+      color: #ffeaea;
+      font-weight: bold;
+      text-align: center;
+      font-size: 14px;
+      box-shadow: 0 0 25px #ff4e4e, inset 0 0 15px #ff1a1a;
+      cursor: pointer;
+      transition: transform 0.5s, box-shadow 0.3s;
+      animation: float 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    .egg-button:hover {
+      transform: rotateY(10deg) rotateX(5deg) scale(1.05);
+      box-shadow: 0 0 40px #ff4e4e, inset 0 0 20px #ff1a1a;
+    }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #884d4d;
+    }
+    .outer-tilt-wrapper {
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 500px;
+      margin-bottom: 40px;
+    }
+
+    .tilt-card {
+      transition: transform 0.2s ease;
+      transform-style: preserve-3d;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Cursor Control Interface</h1>
+
+  <div class="controls">
+    <button class="toggle-button" onclick="setControlMode('hand')">🖐️ Hand Control</button>
+    <button class="toggle-button" onclick="setControlMode('eye')">👁️ Eye Control</button>
+  </div>
+
+  <div class="outer-tilt-wrapper" id="tilt-container">
+    <div class="tilt-card" id="tilt-card">
+      <img class="video-feed" src="{{ url_for('video_feed') }}" alt="Live Feed">
+    </div>
+  </div>
+
+
+  <div class="easter-egg-row">
+    <button class="egg-button" onclick="showTip()">Yoda</button>
+    <button class="egg-button" onclick="showTip()">Vader</button>
+    <button class="egg-button" onclick="showTip()">Leia</button>
+    <button class="egg-button" onclick="showTip()">Luke</button>
+    <button class="egg-button" onclick="showTip()">R2-D2</button>
+  </div>
+
+  <div class="easter-egg-row">
+    <button class="egg-button" onclick="showTip()">Han Solo</button>
+    <button class="egg-button" onclick="showTip()">C-3PO</button>
+    <button class="egg-button" onclick="showTip()">Obi-Wan</button>
+    <button class="egg-button" onclick="showTip()">BB-8</button>
+    <button class="egg-button" onclick="showTip()">Chewbacca</button>
+  </div>
+
+  <div class="footer">
+    &copy; 2025 Team MJ | Dare to lead, Dare to be different.
+  </div>
+
+  <script>
+    const tips = [
+      "Left Click: Blink Left Eye",
+      "Right Click: Blink Right Eye",
+      "Scroll: Blink both eyes and nod",
+      "Move Cursor: Use eyes or hand"
+    ];
+
+    function showTip() {
+      const tip = tips[Math.floor(Math.random() * tips.length)];
+      alert("💡 Tip: " + tip);
+    }
+
+    function setControlMode(mode) {
+      fetch('/set_mode/' + mode);
+    }
+
+    const container = document.getElementById('tilt-container');
+    const card = document.getElementById('tilt-card');
+
+    container.addEventListener('mousemove', (e) => {
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      const rotateX = (-y / 20).toFixed(2);
+      const rotateY = (x / 20).toFixed(2);
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+    });
+
+    container.addEventListener('mouseleave', () => {
+      card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+    });
+  </script>
+</body>
+</html>
